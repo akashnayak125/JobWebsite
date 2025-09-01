@@ -1,0 +1,169 @@
+/* Resume Builder Specific Styles */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 50px;
+}
+
+.step-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 15px;
+    color: #888;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.step-item.active {
+    color: #fff;
+    background-color: #fb246a;
+    border-radius: 50px;
+    font-weight: 700;
+}
+
+.step-container {
+    display: none;
+}
+
+.step-container.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.sector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.sector-card, .experience-card {
+    padding: 25px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.sector-card:hover, .experience-card:hover, .sector-card.selected, .experience-card.selected {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    transform: translateY(-5px);
+    border-color: #fb246a;
+}
+
+.sector-card i, .experience-card i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #fb246a;
+}
+
+.sector-card h4, .experience-card h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.experience-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.experience-card {
+    max-width: 300px;
+}
+
+.photo-preview {
+    max-width: 150px;
+    margin-top: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.keyword-pill {
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.keyword-pill:hover {
+    background-color: #c7c7c7;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.template-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.template-preview {
+    height: 350px;
+    background-color: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    color: #888;
+    border-bottom: 1px solid #ddd;
+}
+
+.template-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.template-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.resume-preview {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.remove-section {
+    float: right;
+    margin-top: -10px;
+}
