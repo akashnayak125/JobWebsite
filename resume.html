@@ -1,0 +1,431 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Resume Builder</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="assets/css/flaticon.css">
+    <link rel="stylesheet" href="assets/css/price_rangs.css">
+    <link rel="stylesheet" href="assets/css/slicknav.css">
+    <link rel="stylesheet" href="assets/css/animate.min.css">
+    <link rel="stylesheet" href="assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/themify-icons.css">
+    <link rel="stylesheet" href="assets/css/slick.css">
+    <link rel="stylesheet" href="assets/css/nice-select.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/resume-builder.css">
+</head>
+
+<body>
+<!-- Preloader Start -->
+<div id="preloader-active">
+    <div class="preloader d-flex align-items-center justify-content-center">
+        <div class="preloader-inner position-relative">
+            <div class="preloader-circle"></div>
+            <div class="preloader-img pere-text">
+                <img src="assets/img/logo/logo.png" alt="">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Preloader Start -->
+<header>
+    <!-- Header Start -->
+    <div class="header-area header-transparrent">
+        <div class="headder-top header-sticky">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-3 col-md-2">
+                        <!-- Logo -->
+                        <div class="logo">
+                            <a href="index.html"><img src="assets/img/logo/logo.png" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-md-9">
+                        <div class="menu-wrapper">
+                            <!-- Main-menu -->
+                            <div class="main-menu">
+                                <nav class="d-none d-lg-block">
+                                    <ul id="navigation">
+                                        <li><a href="index.html">Home</a></li>
+                                        <li><a href="job_listing.html">Find a Jobs </a></li>
+                                        <li><a href="about.html">About</a></li>
+                                        <li><a href="contact.html">Contact</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mobile Menu -->
+                    <div class="col-12">
+                        <div class="mobile_menu d-block d-lg-none"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+</header>
+
+<main>
+    <!-- Hero Area Start-->
+    <div class="slider-area ">
+        <div class="single-slider section-overly slider-height2 d-flex align-items-center" data-background="assets/img/hero/about.jpg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="hero-cap text-center">
+                            <h2>Build Your ATS-Friendly Resume</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hero Area End -->
+
+    <!-- Resume Builder Section Start -->
+    <div class="job-listing-area pt-120 pb-120">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-10 col-md-12 mx-auto">
+                    <!-- Progress Steps -->
+                    <div class="progress-steps">
+                        <div class="step-item active" data-step="1">Choose Sector</div>
+                        <div class="step-item" data-step="2">Experience Level</div>
+                        <div class="step-item" data-step="3">Fill Details</div>
+                        <div class="step-item" data-step="4">Select Template</div>
+                    </div>
+
+                    <!-- Step 1: Choose Sector -->
+                    <div class="step-container active" id="sectorStep">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Choose Your Sector</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="sector-grid">
+                                    <div class="sector-card" data-sector="it">
+                                        <i class="flaticon-high-tech"></i>
+                                        <h4>Information Technology</h4>
+                                    </div>
+                                    <div class="sector-card" data-sector="marketing">
+                                        <i class="flaticon-content"></i>
+                                        <h4>Marketing</h4>
+                                    </div>
+                                    <div class="sector-card" data-sector="finance">
+                                        <i class="flaticon-report"></i>
+                                        <h4>Finance</h4>
+                                    </div>
+                                    <div class="sector-card" data-sector="healthcare">
+                                        <i class="flaticon-tour"></i>
+                                        <h4>Healthcare</h4>
+                                    </div>
+                                    <div class="sector-card" data-sector="engineering">
+                                        <i class="flaticon-helmet"></i>
+                                        <h4>Engineering</h4>
+                                    </div>
+                                    <div class="sector-card" data-sector="education">
+                                        <i class="flaticon-cms"></i>
+                                        <h4>Education</h4>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="selectedSector" name="sector" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Experience Level -->
+                    <div class="step-container" id="experienceStep">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Select Your Experience Level</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="experience-cards">
+                                    <div class="experience-card" data-experience="fresher">
+                                        <i class="flaticon-curriculum-vitae"></i>
+                                        <h4>Fresher</h4>
+                                        <p>Just starting your career journey</p>
+                                    </div>
+                                    <div class="experience-card" data-experience="experienced">
+                                        <i class="flaticon-report"></i>
+                                        <h4>Experienced</h4>
+                                        <p>Have prior work experience</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="experienceLevel" name="experienceLevel" required>
+                                <div class="text-right mt-4">
+                                    <button type="button" class="btn head-btn2 btn-prev">Previous</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Resume Details -->
+                    <div class="step-container" id="detailsStep">
+                        <form id="resumeForm" class="needs-validation" novalidate>
+                            <!-- Personal Information -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h3>Personal Information</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>First Name *</label>
+                                                <input type="text" class="form-control" name="firstName" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Last Name *</label>
+                                                <input type="text" class="form-control" name="lastName" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Email *</label>
+                                                <input type="email" class="form-control" name="email" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Phone *</label>
+                                                <input type="tel" class="form-control" name="phone" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" id="includePhoto" name="includePhoto">
+                                                    <label class="form-check-label" for="includePhoto">Include Profile Photo</label>
+                                                </div>
+                                            </div>
+                                            <div id="photoSection" style="display: none;">
+                                                <input type="file" id="photoInput" class="form-control" accept="image/*">
+                                                <img id="photoPreview" class="photo-preview" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Experience Section (shows only for experienced) -->
+                            <div id="experienceForm" style="display: none;">
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h3>Work Experience</h3>
+                                        <button type="button" class="btn head-btn1 btn-sm" id="addExperience">Add Experience</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="experienceContainer"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Education -->
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3>Education</h3>
+                                    <button type="button" class="btn head-btn1 btn-sm" id="addEducation">Add Education</button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="educationContainer"></div>
+                                </div>
+                            </div>
+
+                            <!-- Skills -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h3>Skills</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Skills (comma separated) *</label>
+                                        <textarea class="form-control" name="skills" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>AI-Powered Keyword Suggestions</label>
+                                        <div id="aiKeywords" class="keywords-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-right mt-4">
+                                <button type="button" class="btn head-btn2 btn-prev">Previous</button>
+                                <button type="submit" class="btn head-btn1">Generate Resume</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 4: Choose Template -->
+                    <div class="step-container" id="templateStep">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Choose Your Resume Template</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="template-grid">
+                                    <!-- Templates will be dynamically inserted here -->
+                                </div>
+                                <div class="text-right mt-4">
+                                    <button type="button" class="btn head-btn2 btn-prev">Back to Form</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resume Preview Modal -->
+                    <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="previewModalLabel">Resume Preview</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <div id="resumePreview" class="resume-preview"></div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn head-btn2" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn head-btn1" onclick="window.print()">Download PDF</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Resume Builder Section End -->
+</main>
+
+<footer>
+    <!-- Footer Start-->
+    <div class="footer-area footer-bg footer-padding">
+        <div class="container">
+            <div class="row d-flex justify-content-between">
+                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                    <div class="single-footer-caption mb-50">
+                        <div class="single-footer-caption mb-30">
+                            <div class="footer-tittle">
+                                <h4>About Us</h4>
+                                <div class="footer-pera">
+                                    <p>Finding the perfect career opportunity.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End-->
+</footer>
+
+<!-- Templates for dynamic form fields -->
+<template id="experienceTemplate">
+    <div class="form-section mb-4 border p-3">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" class="form-control" name="company[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Position *</label>
+                    <input type="text" class="form-control" name="position[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="month" class="form-control" name="expStartDate[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="month" class="form-control" name="expEndDate[]">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea class="form-control" name="expDescription[]" rows="3" required></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm remove-section">Remove</button>
+    </div>
+</template>
+
+<template id="educationTemplate">
+    <div class="form-section mb-4 border p-3">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Degree *</label>
+                    <input type="text" class="form-control" name="degree[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Institution *</label>
+                    <input type="text" class="form-control" name="institution[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Completion Year *</label>
+                    <input type="number" class="form-control" name="eduYear[]" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Grade/Score</label>
+                    <input type="text" class="form-control" name="eduScore[]">
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm remove-section">Remove</button>
+    </div>
+</template>
+
+
+<!-- JS here -->
+<script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
+<script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
+<script src="./assets/js/popper.min.js"></script>
+<script src="./assets/js/bootstrap.min.js"></script>
+<script src="./assets/js/jquery.slicknav.min.js"></script>
+<script src="./assets/js/owl.carousel.min.js"></script>
+<script src="./assets/js/slick.min.js"></script>
+<script src="./assets/js/price_rangs.js"></script>
+<script src="./assets/js/wow.min.js"></script>
+<script src="./assets/js/animated.headline.js"></script>
+<script src="./assets/js/jquery.scrollUp.min.js"></script>
+<script src="./assets/js/jquery.nice-select.min.js"></script>
+<script src="./assets/js/jquery.sticky.js"></script>
+<script src="./assets/js/plugins.js"></script>
+<script src="./assets/js/main.js"></script>
+<script src="./assets/js/resume-builder.js"></script>
+
+</body>
+</html>

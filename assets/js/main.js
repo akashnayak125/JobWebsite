@@ -236,4 +236,46 @@
 
 
 
+/* 13. Govt Job Toggle */
+    function handleGovtJobToggle(switchSelector) {
+        $(document).on('change', switchSelector, function() {
+            if ($(this).is(':checked')) {
+                // Redirect to govt job listing page
+                window.location.href = 'govt_job_listing.html';
+            } else {
+                // Redirect to regular job listing page
+                window.location.href = 'job_listing.html';
+            }
+        });
+    }
+
+    // Apply to both desktop and header switches
+    handleGovtJobToggle('#govtJobSwitch');
+    handleGovtJobToggle('#govtJobSwitchHeader');
+
+    // Also handle the one that might be created by slicknav for mobile
+    // We need to delegate this since the slicknav menu is created dynamically
+    $(document).on('change', '.slicknav_menu #govtJobSwitchHeader', function() {
+        if ($(this).is(':checked')) {
+            window.location.href = 'govt_job_listing.html';
+        } else {
+            window.location.href = 'job_listing.html';
+        }
+    });
+
+    // Set the toggle state based on the current page
+    $(document).ready(function() {
+        var currentPage = window.location.pathname.split("/").pop();
+        if (currentPage === 'govt_job_listing.html') {
+            $('#govtJobSwitch, #govtJobSwitchHeader').prop('checked', true);
+        } else {
+            $('#govtJobSwitch, #govtJobSwitchHeader').prop('checked', false);
+        }
+        // For nice-select, if it's used on the toggle
+        if ($.fn.niceSelect) {
+            $('select').niceSelect('update');
+        }
+    });
+
+
 })(jQuery);
