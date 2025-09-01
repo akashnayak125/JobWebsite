@@ -242,7 +242,13 @@
             var table = $('#companyTable').DataTable({
                 ajax: {
                     url: 'get_companies.php',
-                    dataSrc: ''
+                    dataSrc: function(json) {
+                        if (json.error) {
+                            alert(json.message || 'An error occurred while fetching data');
+                            return [];
+                        }
+                        return json;
+                    }
                 },
                 columns: [
                     { 

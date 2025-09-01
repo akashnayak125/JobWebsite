@@ -1,4 +1,56 @@
-<!DOCTYPE html>
+<!DOC    <title>Add Job - Admin Panel</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <style>
+        /* Autocomplete custom styling */
+        .ui-autocomplete {
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 9999 !important;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .ui-menu-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .ui-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .company-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .company-logo-small {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .company-info {
+            flex: 1;
+        }
+        
+        .company-name {
+            font-weight: bold;
+            color: #2d3e50;
+            margin-bottom: 2px;
+        }
+        
+        .company-details {
+            font-size: 12px;
+            color: #666;
+        }
+    </style> html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -231,29 +283,28 @@
                     </div>
                 </div>
                 
-                <!-- Company Details (will be populated when company is selected) -->
+                <!-- Company details card -->
                 <div id="company_details" class="mt-3" style="display: none;">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-2">
-                                    <img id="selected_company_logo" src="" alt="Company Logo" class="img-fluid">
+                                <div class="col-md-3">
+                                    <img id="selected_company_logo" src="" alt="Company Logo" class="img-fluid rounded">
                                 </div>
-                                <div class="col-md-10">
-                                    <h4 id="selected_company_name"></h4>
-                                    <p id="selected_company_industry" class="text-muted"></p>
-                                    <p id="selected_company_description"></p>
+                                <div class="col-md-9">
+                                    <h4 id="selected_company_name" class="mb-2"></h4>
+                                    <p id="selected_company_industry" class="text-muted mb-2"></p>
+                                    <p class="mb-2"><i class="fas fa-globe"></i> <span id="selected_company_website"></span></p>
+                                    <p class="mb-2"><i class="fas fa-envelope"></i> <span id="selected_company_email"></span></p>
+                                    <div id="selected_company_description" class="mt-3"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="company_logo" class="form-label">Company Logo</label>
-                        <input type="file" class="form-control" id="company_logo" name="company_logo" accept="image/*" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
+
+                <div class="row mt-3">
+                    <div class="col-12 mb-3">
                         <label for="job_link" class="form-label">Job Application Link</label>
                         <input type="url" class="form-control" id="job_link" name="job_link" placeholder="https://example.com/apply" required>
                     </div>
@@ -329,25 +380,6 @@
                 </div>
             </div>
 
-            <!-- Company Information -->
-            <div class="form-section">
-                <h3>Company Information</h3>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="company_website" class="form-label">Company Website</label>
-                        <input type="url" class="form-control" id="company_website" name="company_website">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="company_email" class="form-label">Company Email</label>
-                        <input type="email" class="form-control" id="company_email" name="company_email" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="company_description" class="form-label">Company Description</label>
-                    <textarea class="editor" id="company_description" name="company_description" rows="3" required></textarea>
-                </div>
-            </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-save"></i> Save Job
@@ -370,7 +402,6 @@
         let searchTimeout;
         const companySearch = document.getElementById('company_search');
         const searchResults = document.getElementById('company_search_results');
-        const companyDetails = document.getElementById('company_details');
 
         companySearch.addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
@@ -382,15 +413,16 @@
             }
 
             searchTimeout = setTimeout(() => {
-                fetch(`search_company.php?q=${encodeURIComponent(query)}`)
+                fetch(`search_companies_ajax.php?term=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(companies => {
                         searchResults.innerHTML = '';
-                        companies.forEach(company => {
-                            const item = document.createElement('a');
-                            item.className = 'dropdown-item';
-                            item.href = '#';
-                            item.innerHTML = `
+                        companies.forEach(item => {
+                            const company = item.company;
+                            const element = document.createElement('a');
+                            element.className = 'dropdown-item';
+                            element.href = '#';
+                            element.innerHTML = `
                                 <div class="d-flex align-items-center">
                                     <img src="../${company.company_logo}" alt="${company.company_name}" style="width: 30px; height: 30px; margin-right: 10px;">
                                     <div>
@@ -399,11 +431,11 @@
                                     </div>
                                 </div>
                             `;
-                            item.addEventListener('click', (e) => {
+                            element.addEventListener('click', (e) => {
                                 e.preventDefault();
                                 selectCompany(company);
                             });
-                            searchResults.appendChild(item);
+                            searchResults.appendChild(element);
                         });
                         searchResults.style.display = 'block';
                     })
@@ -412,20 +444,20 @@
         });
 
         function selectCompany(company) {
-            // Fill hidden input
+            // Fill hidden input and search input
             document.getElementById('company_id').value = company.id;
-            
-            // Update search input
             companySearch.value = company.company_name;
             
-            // Update company details display
+            // Update company details in the card
             document.getElementById('selected_company_logo').src = '../' + company.company_logo;
             document.getElementById('selected_company_name').textContent = company.company_name;
             document.getElementById('selected_company_industry').textContent = company.industry;
-            document.getElementById('selected_company_description').innerHTML = company.company_description;
+            document.getElementById('selected_company_website').textContent = company.company_website || 'Not specified';
+            document.getElementById('selected_company_email').textContent = company.company_email || 'Not specified';
+            document.getElementById('selected_company_description').innerHTML = company.company_description || '';
             
-            // Show company details card
-            companyDetails.style.display = 'block';
+            // Show the company details card
+            document.getElementById('company_details').style.display = 'block';
             
             // Hide search results
             searchResults.style.display = 'none';
@@ -437,6 +469,51 @@
                 searchResults.style.display = 'none';
             }
         });
+
+        // Initialize company name autocomplete
+        $("#company_name").autocomplete({
+            source: "search_companies_ajax.php",
+            minLength: 2,
+            select: function(event, ui) {
+                const company = ui.item.company;
+                
+                // Fill in company details
+                $("#company_website").val(company.company_website);
+                $("#company_email").val(company.company_email);
+                $("#company_phone").val(company.company_phone);
+                $("#company_address").val(company.company_address);
+                $("#company_description").val(company.company_description);
+                
+                // Update company logo preview if exists
+                if (company.company_logo) {
+                    $("#company_logo_preview").attr('src', '../' + company.company_logo).show();
+                }
+                
+                // If using TinyMCE for company description
+                if (tinymce.get('company_description')) {
+                    tinymce.get('company_description').setContent(company.company_description || '');
+                }
+                
+                // Store company ID in a hidden field
+                $("#company_id").val(company.id);
+                
+                return false;
+            }
+        }).autocomplete("instance")._renderItem = function(ul, item) {
+            const company = item.company;
+            return $("<li>")
+                .append(`<div class='company-suggestion'>
+                    <img src='../${company.company_logo || 'assets/img/company_logos/default.png'}' class='company-logo-small' 
+                        onerror="this.src='../assets/img/company_logos/default.png'">
+                    <div class='company-info'>
+                        <div class='company-name'>${company.company_name}</div>
+                        <div class='company-details'>
+                            ${company.industry || ''} · ${company.company_size || ''} employees
+                        </div>
+                    </div>
+                </div>`)
+                .appendTo(ul);
+        };
 
         // Initialize TinyMCE
         tinymce.init({

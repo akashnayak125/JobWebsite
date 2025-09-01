@@ -1,17 +1,18 @@
 <?php
-// Database connection parameters
-$servername = "localhost";
-$username = "your_username";
-$password = "your_password";
-$dbname = "jobwebsite";
+require_once '../config/db.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+header('Content-Type: application/json');
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Validate required fields
+if (empty($_POST['job_title']) || empty($_POST['company_name'])) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Job title and company name are required'
+    ]);
+    exit;
 }
+
+try {
 
 // Handle file upload
 $target_dir = "../assets/img/company_logos/";
@@ -56,48 +57,72 @@ $company_email = trim($_POST['company_email']);
 $company_description = sanitize_html($_POST['company_description']);
 $job_link = $_POST['job_link'];
 
+// Parse salary range into min and max
+$salary_parts = explode('-', $salary_range);
+$salary_min = !empty($salary_parts[0]) ? (float)trim($salary_parts[0]) : null;
+$salary_max = !empty($salary_parts[1]) ? (float)trim($salary_parts[1]) : null;
+
+// Generate slug from title
+$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $job_title)));
+$slug = trim($slug, '-');
+
 // Prepare and execute SQL statement
 $sql = "INSERT INTO jobs (
-    job_title, 
-    company_name, 
-    company_logo,
-    location, 
-    salary_range, 
-    job_description, 
-    required_skills, 
-    education_experience, 
-    posting_date, 
-    application_deadline, 
-    vacancy_count, 
-    job_nature, 
-    company_website, 
-    company_email, 
-    company_description,
-    job_link,
+    title,
+    slug,
+    company_id,
+    category_id,
+    description,
+    requirements,
+    education_experience,
+    location,
+    job_type,
+    job_nature,
+    salary_min,
+    salary_max,
+    vacancy,
+    deadline,
+    is_remote,
+    status,
     created_at
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+    :title,
+    :slug,
+    :company_id,
+    :category_id,
+    :description,
+    :requirements,
+    :education,
+    :location,
+    :job_type,
+    :job_nature,
+    :salary_min,
+    :salary_max,
+    :vacancy,
+    :deadline,
+    :is_remote,
+    'published',
+    NOW()
 )";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sssssssssssisssss",
-    $job_title,
-    $company_name,
-    $logo_path,         // Added missing logo_path
-    $location,
-    $salary_range,
-    $job_description,
-    $required_skills,
-    $education_experience,
-    $posting_date,
-    $application_deadline,
-    $vacancy_count,
-    $job_nature,
-    $company_website,
-    $company_email,
-    $company_description,
-    $job_link           // Added missing job_link
-);
+$stmt->execute([
+    ':title' => $job_title,
+    ':slug' => $slug,
+    ':company_id' => null, // This should be set based on the logged-in company or selected company
+    ':category_id' => $_POST['category_id'] ?? null,
+    ':description' => $job_description,
+    ':requirements' => $required_skills,
+    ':education' => $education_experience,
+    ':location' => $location,
+    ':job_type' => $_POST['job_type'] ?? 'Full Time',
+    ':job_nature' => $job_nature,
+    ':salary_min' => $salary_min,
+    ':salary_max' => $salary_max,
+    ':vacancy' => $vacancy_count,
+    ':deadline' => $application_deadline,
+    ':is_remote' => isset($_POST['is_remote']) ? 1 : 0
+]);
 
 // Add better error handling and response
 $response = array();
