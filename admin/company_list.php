@@ -132,25 +132,25 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <nav class="nav flex-column">
-            <a class="nav-link" href="dashboard.html">
+            <a class="nav-link" href="dashboard.php">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a class="nav-link" href="add_job.html">
+            <a class="nav-link" href="add_job.php">
                 <i class="fas fa-plus-circle"></i> Add Job
             </a>
-            <a class="nav-link" href="job_list.html">
+            <a class="nav-link" href="job_list.php">
                 <i class="fas fa-list"></i> Job List
             </a>
-            <a class="nav-link" href="add_company.html">
+            <a class="nav-link" href="add_company.php">
                 <i class="fas fa-building"></i> Add Company
             </a>
-            <a class="nav-link active" href="company_list.html">
+            <a class="nav-link active" href="company_list.php">
                 <i class="fas fa-th-list"></i> Company List
             </a>
-            <a class="nav-link" href="applications.html">
+            <a class="nav-link" href="applications.php">
                 <i class="fas fa-users"></i> Applications
             </a>
-            <a class="nav-link" href="settings.html">
+            <a class="nav-link" href="settings.php">
                 <i class="fas fa-cog"></i> Settings
             </a>
         </nav>
@@ -165,7 +165,7 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Company List</h2>
-            <a href="add_company.html" class="btn btn-primary">
+            <a href="add_company.php" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add New Company
             </a>
         </div>
@@ -257,7 +257,7 @@
                             return '<div class="d-flex align-items-center">' +
                                    '<img src="../' + row.company_logo + '" class="company-logo me-3" alt="' + row.company_name + '">' +
                                    '<div>' +
-                                   '<a href="company_details.html?id=' + row.id + '" class="fw-bold d-block">' + row.company_name + '</a>' +
+                                   '<a href="company_details.php?id=' + row.id + '" class="fw-bold d-block">' + row.company_name + '</a>' +
                                    '<small class="text-muted">' + row.company_website + '</small>' +
                                    '</div>' +
                                    '</div>';
@@ -373,12 +373,12 @@
 
         // Edit company function
         function editCompany(id) {
-            window.location.href = 'edit_company.html?id=' + id;
+            window.location.href = 'edit_company.php?id=' + id;
         }
 
         // View company jobs function
         function viewJobs(id) {
-            window.location.href = 'job_list.html?company_id=' + id;
+            window.location.href = 'job_list.php?company_id=' + id;
         }
 
         // Delete company function

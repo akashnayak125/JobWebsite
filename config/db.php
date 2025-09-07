@@ -21,7 +21,8 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->conn->exec("set names utf8mb4");
         } catch(PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
+            error_log("Connection Error: " . $e->getMessage());
+            throw new PDOException("Database connection failed");
         }
 
         return $this->conn;

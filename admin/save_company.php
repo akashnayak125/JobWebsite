@@ -117,8 +117,7 @@ if ($stmt->rowCount() > 0) {
         echo json_encode([
             'status' => 'success',
             'message' => 'Company added successfully!',
-            'company_id' => $conn->lastInsertId(),
-            'redirect' => 'add_company.html'
+            'company_id' => $conn->lastInsertId()
         ]);
     } else {
         echo json_encode([
@@ -130,11 +129,16 @@ if ($stmt->rowCount() > 0) {
     // PDO automatically closes the statement when it goes out of scope
     
 } catch (PDOException $e) {
-    handleDatabaseError($e);
-} catch (Exception $e) {
+    error_log("Database Error: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
-        'message' => 'An unexpected error occurred'
+        'message' => 'A database error occurred: ' . $e->getMessage()
+    ]);
+} catch (Exception $e) {
+    error_log("General Error: " . $e->getMessage());
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'An unexpected error occurred: ' . $e->getMessage()
     ]);
 }
 ?>

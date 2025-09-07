@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Generate CSRF token if not exists
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+require_once '../config/db.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,25 +121,25 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <nav class="nav flex-column">
-            <a class="nav-link" href="dashboard.html">
+            <a class="nav-link" href="dashboard.php">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a class="nav-link" href="add_job.html">
+            <a class="nav-link" href="add_job.php">
                 <i class="fas fa-plus-circle"></i> Add Job
             </a>
-            <a class="nav-link" href="job_list.html">
+            <a class="nav-link" href="job_list.php">
                 <i class="fas fa-list"></i> Job List
             </a>
-            <a class="nav-link active" href="add_company.html">
+            <a class="nav-link active" href="add_company.php">
                 <i class="fas fa-building"></i> Add Company
             </a>
-            <a class="nav-link" href="company_list.html">
+            <a class="nav-link" href="company_list.php">
                 <i class="fas fa-th-list"></i> Company List
             </a>
-            <a class="nav-link" href="applications.html">
+            <a class="nav-link" href="applications.php">
                 <i class="fas fa-users"></i> Applications
             </a>
-            <a class="nav-link" href="settings.html">
+            <a class="nav-link" href="settings.php">
                 <i class="fas fa-cog"></i> Settings
             </a>
         </nav>
@@ -142,13 +152,17 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Toast Notification -->
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+        <!-- Toast Notifications -->
+        <div class="toast-container position-fixed top-50 start-50 translate-middle">
             <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
-                    <div class="toast-body">
-                        Company added successfully!
-                    </div>
+                    <div class="toast-body fs-5"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body fs-5"></div>
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             </div>
@@ -158,6 +172,7 @@
             <div class="card-body">
                 <h2 class="card-title mb-4">Add New Company</h2>
                 <form id="addCompanyForm" action="save_company.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
                     <div class="form-section">
                         <h3>Company Information</h3>
                         <div class="row">
@@ -238,7 +253,8 @@
     </div>
 
     <script src="../assets/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/s9bk4dpq8mjjkj5td3drb38fogaptj4rkbomq97vblbl0m9z/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
         // Initialize TinyMCE
@@ -260,10 +276,96 @@
             }
         });
 
+        let successToast, errorToast;
+
+        // Initialize toasts after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the toasts
+            successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+                animation: true,
+                autohide: true,
+                delay: 3000
+            });
+            
+            errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+                animation: true,
+                autohide: true,
+                delay: 5000
+            });
+        });
+        
+        // Function to show toast notification
+        function showToast(type, message) {
+            const toastEl = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+            const toast = type === 'success' ? successToast : errorToast;
+            
+            if (toastEl && toast) {
+                toastEl.querySelector('.toast-body').textContent = message;
+                toast.show();
+            } else {
+                console.error('Toast elements not properly initialized');
+                alert(message); // Fallback if toast isn't working
+            }
+        }
+
         // Handle form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            // Make sure TinyMCE updates the textarea before form submission
-            tinymce.triggerSave();
+        document.getElementById('addCompanyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Disable submit button and show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            try {
+                // Make sure TinyMCE updates the textarea before form submission
+                tinymce.triggerSave();
+
+                // Create FormData object
+                const formData = new FormData(this);
+
+                // Submit form using fetch
+                const response = await fetch('save_company.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Get the response text
+                const text = await response.text();
+                console.log('Server response:', text);
+
+                try {
+                    const data = JSON.parse(text);
+                    if (data.status === 'success') {
+                        showToast('success', data.message);
+                        // Reset form
+                        this.reset();
+                        tinymce.get('company_description').setContent('');
+                        document.getElementById('logo_preview').style.display = 'none';
+                        // Redirect after delay
+                        setTimeout(() => {
+                            window.location.href = 'company_list.php';
+                        }, 3000);
+                    } else {
+                        showToast('error', data.message || 'Unknown error occurred');
+                    }
+                } catch (parseError) {
+                    console.error('JSON parsing error:', parseError);
+                    showToast('error', 'Invalid response from server');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showToast('error', 'An error occurred while saving the company');
+            } finally {
+                // Re-enable submit button and restore original text
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
         });
 
         // Preview uploaded image

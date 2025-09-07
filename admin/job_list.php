@@ -146,25 +146,25 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <nav class="nav flex-column">
-            <a class="nav-link" href="dashboard.html">
+            <a class="nav-link" href="dashboard.php">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a class="nav-link" href="add_job.html">
+            <a class="nav-link" href="add_job.php">
                 <i class="fas fa-plus-circle"></i> Add Job
             </a>
-            <a class="nav-link active" href="job_list.html">
+            <a class="nav-link active" href="job_list.php">
                 <i class="fas fa-list"></i> Job List
             </a>
-            <a class="nav-link" href="add_company.html">
+            <a class="nav-link" href="add_company.php">
                 <i class="fas fa-building"></i> Add Company
             </a>
-            <a class="nav-link" href="company_list.html">
+            <a class="nav-link" href="company_list.php">
                 <i class="fas fa-th-list"></i> Company List
             </a>
-            <a class="nav-link" href="applications.html">
+            <a class="nav-link" href="applications.php">
                 <i class="fas fa-users"></i> Applications
             </a>
-            <a class="nav-link" href="settings.html">
+            <a class="nav-link" href="settings.php">
                 <i class="fas fa-cog"></i> Settings
             </a>
         </nav>
@@ -179,7 +179,7 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Job Listings</h2>
-            <a href="add_job.html" class="btn btn-primary">
+            <a href="add_job.php" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add New Job
             </a>
         </div>
@@ -262,19 +262,24 @@
         $(document).ready(function() {
             // Initialize DataTable
             var table = $('#jobTable').DataTable({
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: 'get_jobs.php',
-                    dataSrc: ''
+                    type: 'GET',
+                    dataSrc: 'data'
                 },
                 columns: [
                     { 
                         data: 'job_title',
+                        name: 'job_title',
                         render: function(data, type, row) {
-                            return '<a href="job_details.html?id=' + row.id + '" class="fw-bold">' + data + '</a>';
+                            return '<a href="job_details.php?id=' + row.id + '" class="fw-bold">' + data + '</a>';
                         }
                     },
                     { 
                         data: 'company_name',
+                        name: 'company_name',
                         render: function(data, type, row) {
                             return '<div class="d-flex align-items-center">' +
                                    '<img src="../' + row.company_logo + '" alt="' + data + '" style="width: 30px; height: 30px; margin-right: 10px;">' +
@@ -282,21 +287,33 @@
                                    '</div>';
                         }
                     },
-                    { data: 'location' },
+                    { 
+                        data: 'location',
+                        name: 'location'
+                    },
                     { 
                         data: 'posting_date',
-                        render: function(data) {
-                            return new Date(data).toLocaleDateString();
+                        name: 'posting_date',
+                        render: function(data, type) {
+                            if (type === 'display') {
+                                return new Date(data).toLocaleDateString();
+                            }
+                            return data;
                         }
                     },
                     { 
                         data: 'application_deadline',
-                        render: function(data) {
-                            return new Date(data).toLocaleDateString();
+                        name: 'application_deadline',
+                        render: function(data, type) {
+                            if (type === 'display') {
+                                return new Date(data).toLocaleDateString();
+                            }
+                            return data;
                         }
                     },
                     { 
                         data: 'status',
+                        name: 'status',
                         render: function(data) {
                             let className = 'status-' + data.toLowerCase();
                             return '<span class="status-badge ' + className + '">' + data + '</span>';
@@ -399,7 +416,7 @@
 
         // Edit job function
         function editJob(id) {
-            window.location.href = 'edit_job.html?id=' + id;
+            window.location.href = 'edit_job.php?id=' + id;
         }
 
         // Delete job function
