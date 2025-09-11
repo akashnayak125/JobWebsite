@@ -1,26 +1,139 @@
 <?php
+// Error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Set proper content type and caching headers
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: public, max-age=300'); // Cache for 5 minutes
+header('Vary: Accept-Encoding');
+
+// Handle options request for CORS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit(0);
+}
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config/db.php';
 require_once 'classes/Job.php';
 
-// Get the slug from the URL
-$slug = isset($_GET['slug']) ? $_GET['slug'] : '';
-
-// Initialize Job class
-$job = new Job($conn);
-
-// Get job details
-$jobDetails = $job->getJobBySlug($slug);
-
-// If job not found, redirect to jobs listing
-if (!$jobDetails) {
-    header('Location: job_listing.html');
-    exit();
+// Function to log errors
+function logError($message, $context = []) {
+    $logFile = __DIR__ . '/logs/error.log';
+    $logDir = dirname($logFile);
+    
+    // Create logs directory if it doesn't exist
+    if (!file_exists($logDir)) {
+        mkdir($logDir, 0777, true);
+    }
+    
+    $timestamp = date('Y-m-d H:i:s');
+    $contextStr = !empty($context) ? ' Context: ' . json_encode($context) : '';
+    $logMessage = "[$timestamp] $message$contextStr\n";
+    
+    error_log($logMessage, 3, $logFile);
 }
 
-// Format salary range
-$salary = $jobDetails['salary_min'] && $jobDetails['salary_max'] 
-    ? '$' . number_format($jobDetails['salary_min']) . ' - $' . number_format($jobDetails['salary_max'])
-    : 'Not Specified';
+require_once 'config/db.php';
+require_once 'classes/Job.php';
+
+// Set headers for caching and content type
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: public, max-age=300'); // Cache for 5 minutes
+header('Vary: Accept-Encoding');
+
+// Enable CORS for specific domains if needed
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+
+// Initialize error variable
+$error = null;
+
+// Get the slug from the URL and sanitize it
+$slug = isset($_GET['slug']) ? trim(filter_var($_GET['slug'], FILTER_SANITIZE_URL)) : '';
+
+// Validate slug
+if (empty($slug)) {
+    $error = "Job not found. Please check the URL and try again.";
+} else {
+    // Add a proper request path to the log
+    $requestUri = $_SERVER['REQUEST_URI'] ?? 'Unknown URI';
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown User Agent';
+    error_log("Accessing job details - Slug: {$slug}, URI: {$requestUri}, User Agent: {$userAgent}");
+}
+
+try {
+    // Initialize Job class
+    $job = new Job($conn);
+
+    // Get job details
+    $jobDetails = $job->getJobBySlug($slug);
+
+    if (!$jobDetails) {
+        $error = "Job listing not found. It may have been removed or the URL is incorrect.";
+        http_response_code(404);
+        // Log the 404 error
+        logError("Job not found", [
+            'slug' => $slug,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'Unknown URI'
+        ]);
+    } else {
+        // Log successful access
+        error_log("Job details successfully retrieved for slug: {$slug}");
+        
+        // Set Last-Modified header based on job's update time if available
+        if (isset($jobDetails['updated_at'])) {
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s', strtotime($jobDetails['updated_at'])) . ' GMT');
+        }
+    }
+
+    // Format salary range
+    $salary = (!empty($jobDetails['salary_min']) && !empty($jobDetails['salary_max']))
+        ? '$' . number_format($jobDetails['salary_min']) . ' - $' . number_format($jobDetails['salary_max'])
+        : 'Not Specified';
+
+    // Set default values for optional fields
+    $jobDetails = array_merge([
+        'company_logo' => 'assets/img/company_logos/default.png',
+        'location' => 'Not Specified',
+        'requirements' => 'Not Specified',
+        'qualifications' => 'Not Specified',
+        'vacancy' => 1,
+        'job_type' => 'Full Time',
+        'deadline' => date('Y-m-d', strtotime('+30 days')),
+        'company_website' => '#',
+        'company_description' => 'Company description not available'
+    ], $jobDetails);
+
+} catch (PDOException $e) {
+    // Log detailed error for debugging
+    logError("Database error in job details", [
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'slug' => $slug
+    ]);
+    
+    // Set generic error message for users
+    $error = "We're experiencing technical difficulties. Please try again later.";
+    http_response_code(500);
+} catch (Exception $e) {
+    // Log unexpected errors
+    logError("Unexpected error in job details", [
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'slug' => $slug
+    ]);
+    $error = "An unexpected error occurred. Please try again later.";
+    http_response_code(500);
+}
 
 ?>
 <!doctype html>
@@ -47,6 +160,7 @@ $salary = $jobDetails['salary_min'] && $jobDetails['salary_max']
             <link rel="stylesheet" href="assets/css/slick.css">
             <link rel="stylesheet" href="assets/css/nice-select.css">
             <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/custom.css">
    </head>
 
    <body>
@@ -112,6 +226,17 @@ $salary = $jobDetails['salary_min'] && $jobDetails['salary_max']
         <!-- Header End -->
     </header>
     <main>
+        <?php if (isset($error)): ?>
+        <div class="alert alert-danger" role="alert">
+            <div class="container">
+                <div class="alert-content">
+                    <?php echo htmlspecialchars($error); ?>
+                    <br>
+                    <a href="job_listing.php" class="btn btn-primary mt-3">Return to Job Listings</a>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
         <!-- Hero Area Start-->
         <div class="slider-area">
             <div class="single-slider section-overly slider-height2 d-flex align-items-center" data-background="assets/img/hero/about.jpg">
@@ -137,7 +262,23 @@ $salary = $jobDetails['salary_min'] && $jobDetails['salary_max']
                         <div class="single-job-items mb-50">
                             <div class="job-items">
                                 <div class="company-img company-img-details">
-                                    <a href="#"><img src="<?php echo htmlspecialchars($jobDetails['company_logo']); ?>" alt="<?php echo htmlspecialchars($jobDetails['company_name']); ?>"></a>
+                                    <a href="#">
+                                        <?php
+                                        $logoPath = !empty($jobDetails['company_logo']) 
+                                            ? htmlspecialchars($jobDetails['company_logo'])
+                                            : 'assets/img/logo/logo.png';
+                                        
+                                        // If the path starts with http or https, it's an external URL
+                                        if (!preg_match('/^https?:\/\//', $logoPath)) {
+                                            // Use relative path without leading slash for local files
+                                            $logoPath = ltrim($logoPath, '/');
+                                        }
+                                        ?>
+                                        <img src="<?php echo $logoPath; ?>" 
+                                             alt="<?php echo htmlspecialchars($jobDetails['company_name']); ?>"
+                                             onerror="this.src='assets/img/logo/logo.png';"
+                                             class="img-fluid company-logo">
+                                    </a>
                                 </div>
                                 <div class="job-tittle">
                                     <a href="#">
@@ -220,9 +361,17 @@ $salary = $jobDetails['salary_min'] && $jobDetails['salary_max']
             </div>
         </div>
         <!-- job post company End -->
+        <?php endif; ?>
     </main>
     
-    <?php include 'includes/footer.php'; ?>
+    <?php 
+    $footerPath = __DIR__ . '/includes/footer.php';
+    if (file_exists($footerPath)) {
+        include $footerPath;
+    } else {
+        error_log("Footer file not found at: " . $footerPath);
+    }
+    ?>
 
     <!-- JS here -->
     <script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>

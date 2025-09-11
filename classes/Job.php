@@ -1,19 +1,30 @@
 <?php
 class Job {
     private $conn;
+    private $cache = [];
     
     public function __construct($db) {
         $this->conn = $db;
     }
     
+    /**
+     * Get job by its slug
+     * @param string $slug
+     * @return array|false
+     * @throws PDOException
+     */
     public function getJobBySlug($slug) {
+        // Check cache first
+        if (isset($this->cache[$slug])) {
+            return $this->cache[$slug];
+        }
         $query = "SELECT 
                     j.*, 
                     c.company_name,
                     c.company_logo,
-                    c.website as company_website,
-                    c.email as company_email,
-                    c.description as company_description
+                    c.company_website,
+                    c.company_email,
+                    c.company_description
                 FROM 
                     jobs j
                 LEFT JOIN 

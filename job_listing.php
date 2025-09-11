@@ -22,21 +22,92 @@ $locations = $conn->query($locationQuery)->fetchAll(PDO::FETCH_COLUMN);
 $jobTypes = $conn->query($jobTypeQuery)->fetchAll(PDO::FETCH_COLUMN);
 $industries = $conn->query($industryQuery)->fetchAll(PDO::FETCH_COLUMN);
 
-// Build the query
-$query = "SELECT 
+// Build the base query with UNION to prioritize different types of matches
+if (!empty($filters['search'])) {
+    $searchTerm = '%' . $filters['search'] . '%';
+    $query = "
+        (SELECT 
             j.*, 
             c.company_name, 
             c.company_logo,
-            c.industry
-          FROM jobs j
-          LEFT JOIN companies c ON j.company_id = c.id
-          WHERE 1=1";
-$params = [];
+            c.industry,
+            1 as match_priority -- Exact title matches
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE j.title LIKE :exact_title)
+        
+        UNION ALL
+        
+        (SELECT 
+            j.*, 
+            c.company_name, 
+            c.company_logo,
+            c.industry,
+            2 as match_priority -- Partial title matches
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE j.title LIKE :partial_title
+        AND j.title NOT LIKE :exact_title2)
+        
+        UNION ALL
+        
+        (SELECT 
+            j.*, 
+            c.company_name, 
+            c.company_logo,
+            c.industry,
+            3 as match_priority -- Description matches
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE j.description LIKE :description
+        AND j.title NOT LIKE :exact_title3
+        AND j.title NOT LIKE :partial_title2)
+        
+        UNION ALL
+        
+        (SELECT 
+            j.*, 
+            c.company_name, 
+            c.company_logo,
+            c.industry,
+            4 as match_priority -- Location and other matches
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE (j.location LIKE :location 
+              OR c.company_name LIKE :company
+              OR j.requirements LIKE :requirements)
+        AND j.title NOT LIKE :exact_title4
+        AND j.title NOT LIKE :partial_title3
+        AND j.description NOT LIKE :description2)
+        
+        ORDER BY match_priority, j.created_at DESC";
 
-// Add filter conditions
-if (!empty($filters['search'])) {
-    $query .= " AND (j.title LIKE :search OR j.description LIKE :search OR c.company_name LIKE :search)";
-    $params[':search'] = '%' . $filters['search'] . '%';
+    $params = [
+        ':exact_title' => $filters['search'],
+        ':partial_title' => $searchTerm,
+        ':exact_title2' => $filters['search'],
+        ':exact_title3' => $filters['search'],
+        ':partial_title2' => $searchTerm,
+        ':exact_title4' => $filters['search'],
+        ':partial_title3' => $searchTerm,
+        ':description' => $searchTerm,
+        ':description2' => $searchTerm,
+        ':location' => $searchTerm,
+        ':company' => $searchTerm,
+        ':requirements' => $searchTerm
+    ];
+} else {
+    // If no search term, use the original query
+    $query = "SELECT 
+                j.*, 
+                c.company_name, 
+                c.company_logo,
+                c.industry,
+                1 as match_priority
+              FROM jobs j
+              LEFT JOIN companies c ON j.company_id = c.id
+              WHERE 1=1";
+    $params = [];
 }
 
 if (!empty($filters['location'])) {
@@ -108,10 +179,9 @@ $totalJobs = count($jobs);
     <link rel="stylesheet" href="assets/css/themify-icons.css">
     <link rel="stylesheet" href="assets/css/slick.css">
     <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-
-<body>
+            <link rel="stylesheet" href="assets/css/style.css">
+            <link rel="stylesheet" href="assets/css/custom.css">
+   </head><body>
     <?php include 'includes/header.php'; ?>
     
     <!-- Hero Area Start-->

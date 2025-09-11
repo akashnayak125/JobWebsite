@@ -1,0 +1,20 @@
+.company-img-details img.company-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+/* For job listing page */
+.company-img img.company-logo {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    background: #fff;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
