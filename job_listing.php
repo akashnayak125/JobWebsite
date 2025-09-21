@@ -22,97 +22,56 @@ $locations = $conn->query($locationQuery)->fetchAll(PDO::FETCH_COLUMN);
 $jobTypes = $conn->query($jobTypeQuery)->fetchAll(PDO::FETCH_COLUMN);
 $industries = $conn->query($industryQuery)->fetchAll(PDO::FETCH_COLUMN);
 
-// Build the base query with UNION to prioritize different types of matches
-if (!empty($filters['search'])) {
-    $searchTerm = '%' . $filters['search'] . '%';
-    $query = "
-        (SELECT 
-            j.*, 
-            c.company_name, 
-            c.company_logo,
-            c.industry,
-            1 as match_priority -- Exact title matches
-        FROM jobs j
-        LEFT JOIN companies c ON j.company_id = c.id
-        WHERE j.title LIKE :exact_title)
-        
-        UNION ALL
-        
-        (SELECT 
-            j.*, 
-            c.company_name, 
-            c.company_logo,
-            c.industry,
-            2 as match_priority -- Partial title matches
-        FROM jobs j
-        LEFT JOIN companies c ON j.company_id = c.id
-        WHERE j.title LIKE :partial_title
-        AND j.title NOT LIKE :exact_title2)
-        
-        UNION ALL
-        
-        (SELECT 
-            j.*, 
-            c.company_name, 
-            c.company_logo,
-            c.industry,
-            3 as match_priority -- Description matches
-        FROM jobs j
-        LEFT JOIN companies c ON j.company_id = c.id
-        WHERE j.description LIKE :description
-        AND j.title NOT LIKE :exact_title3
-        AND j.title NOT LIKE :partial_title2)
-        
-        UNION ALL
-        
-        (SELECT 
-            j.*, 
-            c.company_name, 
-            c.company_logo,
-            c.industry,
-            4 as match_priority -- Location and other matches
-        FROM jobs j
-        LEFT JOIN companies c ON j.company_id = c.id
-        WHERE (j.location LIKE :location 
-              OR c.company_name LIKE :company
-              OR j.requirements LIKE :requirements)
-        AND j.title NOT LIKE :exact_title4
-        AND j.title NOT LIKE :partial_title3
-        AND j.description NOT LIKE :description2)
-        
-        ORDER BY match_priority, j.created_at DESC";
+// Build the base query
+$query = "SELECT 
+    j.*, 
+    c.company_name, 
+    c.company_logo,
+    c.industry";
 
-    $params = [
-        ':exact_title' => $filters['search'],
-        ':partial_title' => $searchTerm,
-        ':exact_title2' => $filters['search'],
-        ':exact_title3' => $filters['search'],
-        ':partial_title2' => $searchTerm,
-        ':exact_title4' => $filters['search'],
-        ':partial_title3' => $searchTerm,
-        ':description' => $searchTerm,
-        ':description2' => $searchTerm,
-        ':location' => $searchTerm,
-        ':company' => $searchTerm,
-        ':requirements' => $searchTerm
-    ];
+if (!empty($filters['search'])) {
+    $query .= ",
+    CASE 
+        WHEN j.title = :exact_title THEN 1
+        WHEN j.title LIKE :partial_title THEN 2
+        WHEN j.description LIKE :description THEN 3
+        ELSE 4
+    END as match_priority";
 } else {
-    // If no search term, use the original query
-    $query = "SELECT 
-                j.*, 
-                c.company_name, 
-                c.company_logo,
-                c.industry,
-                1 as match_priority
-              FROM jobs j
-              LEFT JOIN companies c ON j.company_id = c.id
-              WHERE 1=1";
-    $params = [];
+    $query .= ", 1 as match_priority";
 }
 
+$query .= " FROM jobs j
+    LEFT JOIN companies c ON j.company_id = c.id
+    WHERE 1=1";
+
+$params = [];
+
+// Add search conditions if search term exists
+if (!empty($filters['search'])) {
+    $searchTerm = '%' . $filters['search'] . '%';
+    $query .= " AND (
+        j.title LIKE :partial_title2
+        OR j.description LIKE :description2
+        OR j.location LIKE :location
+        OR c.company_name LIKE :company
+        OR j.requirements LIKE :requirements
+    )";
+    
+    $params[':exact_title'] = $filters['search'];
+    $params[':partial_title'] = $searchTerm;
+    $params[':partial_title2'] = $searchTerm;
+    $params[':description'] = $searchTerm;
+    $params[':description2'] = $searchTerm;
+    $params[':location'] = $searchTerm;
+    $params[':company'] = $searchTerm;
+    $params[':requirements'] = $searchTerm;
+}
+
+// Add other filters
 if (!empty($filters['location'])) {
-    $query .= " AND j.location = :location";
-    $params[':location'] = $filters['location'];
+    $query .= " AND j.location = :filter_location";
+    $params[':filter_location'] = $filters['location'];
 }
 
 if (!empty($filters['job_type'])) {
@@ -143,8 +102,8 @@ if (!empty($filters['date_posted'])) {
     $params[':days'] = $days;
 }
 
-// Add sorting - newest jobs first
-$query .= " ORDER BY j.created_at DESC";
+// Add sorting - match priority and newest jobs first
+$query .= " ORDER BY match_priority, j.created_at DESC";
 
 // Prepare and execute the query
 $stmt = $conn->prepare($query);

@@ -107,6 +107,29 @@ try {
             animation: fadeInOut 3s;
         }
 
+        #job_domain_results {
+            max-height: 300px;
+            overflow-y: auto;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #job_domain_results .dropdown-item {
+            white-space: normal;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #job_domain_results .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        #job_domain_results .text-muted {
+            font-size: 0.85em;
+        }
+
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateY(-20px); }
             10% { opacity: 1; transform: translateY(0); }
@@ -117,8 +140,13 @@ try {
         .company-suggestion {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+        }
+
+        .company-suggestion:hover {
+            background-color: #f8f9fa;
         }
 
         .company-logo-small {
@@ -126,17 +154,35 @@ try {
             height: 40px;
             object-fit: cover;
             border-radius: 4px;
-            margin-right: 10px;
+            margin-right: 12px;
+            border: 1px solid #eee;
         }
 
         #company_search_results {
             position: absolute;
             width: 100%;
-            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1050;
             background: white;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 2px;
+        }
+        
+        #company_search_results .dropdown-item {
+            padding: 0;
+            white-space: normal;
+        }
+
+        #company_search_results .dropdown-item:hover,
+        #company_search_results .dropdown-item:focus {
+            background-color: transparent;
+        }
+        
+        #company_details {
+            transition: all 0.3s ease;
         }
 
         .stats-card {
@@ -151,6 +197,39 @@ try {
             font-size: 24px;
             font-weight: bold;
             color: var(--accent-color);
+        }
+
+        /* Editor styles */
+        .editor-wrapper {
+            position: relative;
+        }
+        
+        .tox-tinymce {
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+            transition: border-color .15s ease-in-out;
+        }
+        
+        .tox-tinymce:focus-within {
+            border-color: #80bdff !important;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+        }
+        
+        .tox .tox-toolbar {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+        
+        .tox .tox-toolbar__group {
+            border-color: #dee2e6 !important;
+        }
+        
+        .tox .tox-tbtn {
+            color: #495057 !important;
+        }
+        
+        .tox .tox-tbtn:hover {
+            background-color: #e9ecef !important;
         }
     </style>
 </head>
@@ -236,16 +315,19 @@ try {
                             <div class="col-md-6 mb-3">
                                 <label for="company_search" class="form-label">Search Company</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="company_search" placeholder="Search for company...">
+                                    <input type="text" class="form-control" id="company_search" 
+                                           placeholder="Type company name to search..." autocomplete="off">
                                     <input type="hidden" id="company_id" name="company_id" required>
                                     <div class="input-group-append">
-                                        <a href="add_company.php" class="btn btn-outline-secondary">
+                                        <a href="add_company.php" class="btn btn-outline-secondary" target="_blank">
                                             <i class="fas fa-plus"></i> Add New Company
                                         </a>
                                     </div>
                                 </div>
                                 <div id="company_search_results" class="dropdown-menu w-100" style="display: none;">
+                                    <!-- Search results will be populated here -->
                                 </div>
+                                <small class="form-text text-muted">Start typing to search for companies</small>
                             </div>
                         </div>
 
@@ -294,29 +376,36 @@ try {
                     <!-- Job Description -->
                     <div class="form-section">
                         <h3>Job Description</h3>
-                        <div class="mb-3">
+                        <div class="mb-3 editor-wrapper">
                             <label for="job_description" class="form-label">Detailed Job Description</label>
-                            <textarea class="editor" id="job_description" name="job_description" rows="5" required></textarea>
+                            <textarea class="editor form-control" id="job_description" name="job_description" rows="8" required></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> Write a comprehensive description of the job role, responsibilities, and requirements
+                            </div>
                         </div>
                     </div>
 
                     <!-- Required Skills -->
                     <div class="form-section">
                         <h3>Required Skills</h3>
-                        <div class="mb-3">
+                        <div class="mb-3 editor-wrapper">
                             <label for="required_skills" class="form-label">Required Knowledge, Skills, and Abilities</label>
-                            <textarea class="editor" id="required_skills" name="required_skills" rows="5" required></textarea>
-                            <small class="form-text text-muted">Use bullet points for better formatting</small>
+                            <textarea class="editor form-control" id="required_skills" name="required_skills" rows="8" required></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-list-ul"></i> Use bullet points to list required skills and qualifications
+                            </div>
                         </div>
                     </div>
 
                     <!-- Education and Experience -->
                     <div class="form-section">
                         <h3>Education and Experience</h3>
-                        <div class="mb-3">
+                        <div class="mb-3 editor-wrapper">
                             <label for="education_experience" class="form-label">Education and Experience Requirements</label>
-                            <textarea class="editor" id="education_experience" name="education_experience" rows="5" required></textarea>
-                            <small class="form-text text-muted">Use bullet points for better formatting</small>
+                            <textarea class="editor form-control" id="education_experience" name="education_experience" rows="8" required></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-graduation-cap"></i> Specify educational qualifications and required work experience
+                            </div>
                         </div>
                     </div>
 
@@ -334,12 +423,12 @@ try {
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label for="vacancy_count" class="form-label">Number of Vacancies</label>
                                 <input type="number" class="form-control" id="vacancy_count" name="vacancy_count" min="1" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="job_nature" class="form-label">Job Nature</label>
+                            <div class="col-md-4 mb-3">
+                                <label for="job_nature" class="form-label">Job Type</label>
                                 <select class="form-control" id="job_nature" name="job_nature" required>
                                     <option value="">Select Job Type</option>
                                     <option value="Full Time">Full Time</option>
@@ -347,7 +436,42 @@ try {
                                     <option value="Contract">Contract</option>
                                     <option value="Freelance">Freelance</option>
                                     <option value="Internship">Internship</option>
+                                    <option value="Temporary">Temporary</option>
                                 </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="job_domain" class="form-label">Job Domain</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="job_domain" name="job_domain" 
+                                           placeholder="Select job domain" required readonly>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="showDomainBtn">
+                                            <i class="fas fa-th-list"></i> Browse Domains
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Click 'Browse Domains' to select a job domain</small>
+                            </div>
+                        </div>
+
+                        <!-- Job Domain Modal -->
+                        <div class="modal fade" id="jobDomainModal" tabindex="-1" role="dialog" aria-labelledby="jobDomainModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="jobDomainModalLabel">Select Job Domain</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="text" class="form-control mb-3" id="domainSearchInput" 
+                                               placeholder="Search domains and categories...">
+                                        <div id="domainList" class="row">
+                                            <!-- Domains will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -368,9 +492,176 @@ try {
     <!-- Scripts -->
     <script src="../assets/js/vendor/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/s9bk4dpq8mjjkj5td3drb38fogaptj4rkbomq97vblbl0m9z/tinymce/5/tinymce.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/s9bk4dpq8mjjkj5td3drb38fogaptj4rkbomq97vblbl0m9z/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="js/editor-setup.js"></script>
+    <script src="js/job-domain.js"></script>
+    <script src="js/company-search.js"></script>
     
     <script>
+        $(document).ready(function() {
+            // Initialize variables
+            let jobDomains = {};
+            const jobDomainInput = document.getElementById('job_domain');
+            const domainList = document.getElementById('domainList');
+            const domainSearchInput = document.getElementById('domainSearchInput');
+            
+            // Load domains when page loads
+            loadJobDomains();
+            
+            // Modal button click handler
+            $('#showDomainBtn').click(function() {
+                if (Object.keys(jobDomains).length === 0) {
+                    loadJobDomains();
+                }
+                $('#jobDomainModal').modal('show');
+            });
+
+            // Domain search in modal
+            $('#domainSearchInput').on('input', function() {
+                populateDomainModal($(this).val());
+            });
+
+            // Load job domains
+            function loadJobDomains() {
+                $.ajax({
+                    url: 'get_job_domains.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            jobDomains = response.domains;
+                            populateDomainModal();
+                        } else {
+                            showNotification('danger', 'Error loading job domains');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading domains:', error);
+                        showNotification('danger', 'Error loading job domains');
+                    }
+                });
+            }
+
+            // Populate domain modal
+            function populateDomainModal(searchTerm = '') {
+                domainList.innerHTML = '';
+                
+                Object.entries(jobDomains).forEach(([domain, categories]) => {
+                    // Filter categories if there's a search term
+                    if (searchTerm) {
+                        const searchLower = searchTerm.toLowerCase();
+                        categories = categories.filter(category => 
+                            category.toLowerCase().includes(searchLower) ||
+                            domain.toLowerCase().includes(searchLower)
+                        );
+                        if (categories.length === 0) return;
+                    }
+
+                    const domainCol = document.createElement('div');
+                    domainCol.className = 'col-md-6 mb-4';
+                    
+                    const domainCard = document.createElement('div');
+                    domainCard.className = 'card h-100';
+                    
+                    const cardHeader = document.createElement('div');
+                    cardHeader.className = 'card-header';
+                    cardHeader.innerHTML = `<h6 class="mb-0 text-primary"><i class="fas fa-folder me-2"></i>${domain}</h6>`;
+                    
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body p-0';
+                    
+                    const categoryList = document.createElement('div');
+                    categoryList.className = 'list-group list-group-flush';
+                    
+                    categories.forEach(category => {
+                        const categoryItem = document.createElement('a');
+                        categoryItem.href = '#';
+                        categoryItem.className = 'list-group-item list-group-item-action';
+                        categoryItem.innerHTML = `<i class="fas fa-tag me-2 text-secondary"></i>${category}`;
+                        categoryItem.onclick = (e) => {
+                            e.preventDefault();
+                            selectJobDomain(category);
+                        };
+                        categoryList.appendChild(categoryItem);
+                    });
+                    
+                    cardBody.appendChild(categoryList);
+                    domainCard.appendChild(cardHeader);
+                    domainCard.appendChild(cardBody);
+                    domainCol.appendChild(domainCard);
+                    domainList.appendChild(domainCol);
+                });
+
+                if (domainList.children.length === 0) {
+                    domainList.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-search fa-2x text-muted mb-3 d-block"></i>
+                            <p class="text-muted">No domains found matching your search.</p>
+                        </div>
+                    `;
+                }
+            }
+
+            function selectJobDomain(domain) {
+                jobDomainInput.value = domain;
+                $('#jobDomainModal').modal('hide');
+            }
+
+        // Domain search in input field
+        let jobDomainTimeout;
+        jobDomainInput?.addEventListener('input', function(e) {
+            clearTimeout(jobDomainTimeout);
+            const query = e.target.value;
+            
+            if (query.length < 2) {
+                jobDomainResults.style.display = 'none';
+                return;
+            }
+
+            jobDomainTimeout = setTimeout(() => {
+                fetch(`get_job_domains.php?term=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        jobDomainResults.innerHTML = '';
+                        if (data.status === 'error') {
+                            jobDomainResults.style.display = 'none';
+                            return;
+                        }
+                        
+                        const domains = data.domains;
+                        let hasResults = false;
+                        
+                        Object.entries(domains).forEach(([domain, categories]) => {
+                            categories.forEach(category => {
+                                hasResults = true;
+                                const element = document.createElement('a');
+                                element.className = 'dropdown-item';
+                                element.href = '#';
+                                element.innerHTML = `<small class="text-muted">${domain}</small><br>${category}`;
+                                element.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    selectJobDomain(category);
+                                });
+                                jobDomainResults.appendChild(element);
+                            });
+                        });
+                        
+                        jobDomainResults.style.display = hasResults ? 'block' : 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        jobDomainResults.style.display = 'none';
+                    });
+            }, 300);
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!jobDomainInput?.contains(e.target) && !jobDomainResults?.contains(e.target)) {
+                if (jobDomainResults) jobDomainResults.style.display = 'none';
+            }
+        });
+
         // Initialize TinyMCE
         tinymce.init({
             selector: 'textarea.editor',
@@ -491,6 +782,222 @@ try {
             if (!companySearch.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.style.display = 'none';
             }
+            if (!e.target.closest('#job_nature') && !e.target.closest('#job_type_results')) {
+                $('#job_type_results').hide();
+            }
+        });
+
+        // Job Type Autocomplete
+        let jobTypeTimeout;
+        const jobTypeInput = document.getElementById('job_nature');
+        const jobTypeResults = document.getElementById('job_type_results');
+        const commonJobTypes = [
+            'Full Time',
+            'Part Time',
+            'Contract',
+            'Freelance',
+            'Internship',
+            'Remote',
+            'Hybrid',
+            'On-site',
+            'Temporary'
+        ];
+
+        // Populate common job types dropdown
+        const suggestions = document.getElementById('job_type_suggestions');
+        commonJobTypes.forEach(type => {
+            const item = document.createElement('a');
+            item.className = 'dropdown-item';
+            item.href = '#';
+            item.textContent = type;
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                jobTypeInput.value = type;
+            });
+            suggestions.appendChild(item);
+        });
+
+        // Job Domain Functionality
+        let jobDomains = {};
+
+        // Load job domains
+        function loadJobDomains() {
+            fetch('get_job_domains.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        jobDomains = data.domains;
+                        populateDomainModal();
+                    }
+                })
+                .catch(error => console.error('Error loading job domains:', error));
+        }
+
+        // Populate domain modal
+        function populateDomainModal(searchTerm = '') {
+            domainList.innerHTML = '';
+            
+            Object.entries(jobDomains).forEach(([domain, categories]) => {
+                // Filter categories if there's a search term
+                if (searchTerm) {
+                    categories = categories.filter(category => 
+                        category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        domain.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    if (categories.length === 0) return;
+                }
+
+                const domainCol = document.createElement('div');
+                domainCol.className = 'col-md-6 mb-4';
+                
+                const domainCard = document.createElement('div');
+                domainCard.className = 'card h-100';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'card-header bg-primary text-white';
+                cardHeader.textContent = domain;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+                
+                const categoryList = document.createElement('ul');
+                categoryList.className = 'list-group list-group-flush';
+                
+                categories.forEach(category => {
+                    const categoryItem = document.createElement('li');
+                    categoryItem.className = 'list-group-item';
+                    const categoryLink = document.createElement('a');
+                    categoryLink.href = '#';
+                    categoryLink.className = 'text-decoration-none';
+                    categoryLink.textContent = category;
+                    categoryLink.onclick = (e) => {
+                        e.preventDefault();
+                        selectJobDomain(category);
+                    };
+                    categoryItem.appendChild(categoryLink);
+                    categoryList.appendChild(categoryItem);
+                });
+                
+                cardBody.appendChild(categoryList);
+                domainCard.appendChild(cardHeader);
+                domainCard.appendChild(cardBody);
+                domainCol.appendChild(domainCard);
+                domainList.appendChild(domainCol);
+            });
+        }
+
+        function showJobDomainModal() {
+            if (Object.keys(jobDomains).length === 0) {
+                loadJobDomains();
+            }
+            $('#jobDomainModal').modal('show');
+        }
+
+        function selectJobDomain(domain) {
+            jobDomainInput.value = domain;
+            $('#jobDomainModal').modal('hide');
+            jobDomainResults.style.display = 'none';
+        }
+
+        // Domain search in modal
+        domainSearchInput.addEventListener('input', function(e) {
+            populateDomainModal(e.target.value);
+        });
+
+        // Domain search in input field
+        jobDomainInput.addEventListener('input', function(e) {
+            clearTimeout(jobDomainTimeout);
+            const query = e.target.value;
+            
+            if (query.length < 2) {
+                jobDomainResults.style.display = 'none';
+                return;
+            }
+
+            jobDomainTimeout = setTimeout(() => {
+                fetch(`get_job_domains.php?term=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        jobDomainResults.innerHTML = '';
+                        if (data.status === 'error') {
+                            jobDomainResults.style.display = 'none';
+                            return;
+                        }
+                        
+                        const domains = data.domains;
+                        let hasResults = false;
+                        
+                        Object.entries(domains).forEach(([domain, categories]) => {
+                            categories.forEach(category => {
+                                hasResults = true;
+                                const element = document.createElement('a');
+                                element.className = 'dropdown-item';
+                                element.href = '#';
+                                element.innerHTML = `<small class="text-muted">${domain}</small><br>${category}`;
+                                element.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    selectJobDomain(category);
+                                });
+                                jobDomainResults.appendChild(element);
+                            });
+                        });
+                        
+                        jobDomainResults.style.display = hasResults ? 'block' : 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        jobDomainResults.style.display = 'none';
+                    });
+            }, 300);
+        });
+
+        // Original job type input handler
+        jobTypeInput.addEventListener('input', function(e) {
+            clearTimeout(jobTypeTimeout);
+            const query = e.target.value;
+            
+            if (query.length < 2) {
+                jobTypeResults.style.display = 'none';
+                return;
+            }
+
+            jobTypeTimeout = setTimeout(() => {
+                fetch(`get_job_types.php?term=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        jobTypeResults.innerHTML = '';
+                        if (data.status === 'error') {
+                            jobTypeResults.innerHTML = `<div class="p-3 text-danger">${data.message}</div>`;
+                            jobTypeResults.style.display = 'block';
+                            return;
+                        }
+                        
+                        const types = data.types || [];
+                        if (types.length === 0) {
+                            jobTypeResults.style.display = 'none';
+                            return;
+                        }
+
+                        types.forEach(type => {
+                            const element = document.createElement('a');
+                            element.className = 'dropdown-item';
+                            element.href = '#';
+                            element.textContent = type;
+                            element.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                jobTypeInput.value = type;
+                                jobTypeResults.style.display = 'none';
+                            });
+                            jobTypeResults.appendChild(element);
+                        });
+                        jobTypeResults.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        jobTypeResults.innerHTML = '<div class="p-3 text-danger">Error searching job types</div>';
+                        jobTypeResults.style.display = 'block';
+                    });
+            }, 300);
         });
 
         // Form submission handling
